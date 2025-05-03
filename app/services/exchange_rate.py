@@ -20,9 +20,11 @@ settings = Settings()
 # Default to 60 minutes (3600 seconds) if not specified
 CACHE_TTL = int(getattr(settings, "CACHE_TTL_MINUTES", 10)) * 60
 
+CACHE_TTL = int(getattr(settings, "CACHE_TTL_MINUTES", 10)) * 60
+
 # Create a global cache to store timestamps
 _cache_timestamps = {}
-
+@cached(ttl=CACHE_TTL, cache=SimpleMemoryCache)
 # Custom caching implementation to track cache status
 async def fetch_and_parse_rate_data(url: str, timeout: int = 10) -> Tuple[Dict[str, Any], bool, datetime]:
     """
@@ -42,38 +44,21 @@ async def fetch_and_parse_rate_data(url: str, timeout: int = 10) -> Tuple[Dict[s
     Raises:
         Exception: If there's an error during fetching or parsing the data
     """
-    cache_key = f"exchange_rate:{url}"
-    cache = SimpleMemoryCache()
+
     is_cached = False
     now = datetime.now()
 
-    # Check if data is in cache
-    cached_data = await cache.get(cache_key)
 
-    if cached_data is not None:
-        # Data is in cache
-        is_cached = True
-        # Get expiration time from our timestamps dictionary
-        expiration_time = _cache_timestamps.get(cache_key, now + timedelta(seconds=CACHE_TTL))
-        logger.info(f"Using cached exchange rate data. Next update at {expiration_time}")
-        return cached_data, is_cached, expiration_time
-
-    # If not in cache, fetch new data
-    next_update = now + timedelta(seconds=CACHE_TTL)
-    _cache_timestamps[cache_key] = next_update
-    logger.info(f"Fetching fresh exchange rate data. Will cache until {next_update}")
     try:
         async with httpx.AsyncClient() as client:
             logger.info(f"Fetching exchange rate data from {url}")
             response = await client.get(url, timeout=timeout)
             response.raise_for_status()  # Raise exception for HTTP errors
 
-            # Parse the HTML content with lxml for better performance
+
             soup = BeautifulSoup(response.text, 'lxml')
 
-            # Extract the exchange rate data
-            # Note: The actual extraction logic will depend on the specific website structure
-            # This is a placeholder example that should be adapted to the target website
+
             exchange_data = _parse_exchange_rate_data(soup)
 
             if not exchange_data:
@@ -82,10 +67,9 @@ async def fetch_and_parse_rate_data(url: str, timeout: int = 10) -> Tuple[Dict[s
 
             logger.info(f"Successfully fetched and parsed exchange rate data: {exchange_data}")
 
-            # Store in cache
-            await cache.set(cache_key, exchange_data, ttl=CACHE_TTL)
 
-            return exchange_data, is_cached, next_update
+
+            return exchange_data, None, None
 
     except httpx.TimeoutException:
         logger.error(f"Timeout error while fetching data from {url}")
