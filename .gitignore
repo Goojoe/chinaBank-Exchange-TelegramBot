@@ -1,0 +1,28 @@
+# 配置文件（包含敏感信息）
+config.yaml
+
+# 缓存文件
+chinaBank-Exchange-TelegramBot.html # 旧的缓存文件（根目录）
+data/ # 包含下载的 HTML 等缓存数据
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 环境文件
+.env
+*venv/
+env/
+ENV/
+
+# 日志文件
+*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE相关
+.idea/
+.vscode/
+*.swp
+*.swo

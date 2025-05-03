@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard] # Web 服务器
+aiogram
+aiocache
+httpx # 用于异步 HTTP 请求 (FastAPI 推荐)
+beautifulsoup4
+lxml # BeautifulSoup 解析时常需要
+python-dotenv
+pytz

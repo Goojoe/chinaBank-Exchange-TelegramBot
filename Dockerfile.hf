@@ -1,0 +1,10 @@
+FROM ghcr.io/goojoe/cet_bot:latest
+
+ENV TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+ENV CACHE_TTL_MINUTES=${CACHE_TTL_MINUTES}
+ENV WEBHOOK_URL=${WEBHOOK_URL}
+
+EXPOSE 7860
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
+

@@ -1,0 +1,5 @@
+start -  启动消息
+rate -  获取所有货币汇率
+convert -  转换货币 举例 /convert USD EUR 100
+currency -  获取货币列表
+cny_convert -  其他货币转换人民币 /cny_convert USD 20
