@@ -25,8 +25,7 @@ class Settings:
         self.APP_WORKERS = int(os.environ.get("APP_WORKERS", "4"))
         self.DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "t")
 
-        # Cache Configuration (in minutes)
-        self.CACHE_TIMEOUT = int(os.environ.get("CACHE_TIMEOUT", "5") or "5")
+
 
 
         # External Service URLs
