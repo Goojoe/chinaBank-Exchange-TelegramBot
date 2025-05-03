@@ -20,26 +20,21 @@ settings = Settings()
 # Default to 60 minutes (3600 seconds) if not specified
 CACHE_TTL = int(getattr(settings, "CACHE_TTL_MINUTES", 10)) * 60
 
-CACHE_TTL = int(getattr(settings, "CACHE_TTL_MINUTES", 10)) * 60
-
 # Create a global cache to store timestamps
 _cache_timestamps = {}
 @cached(ttl=CACHE_TTL, cache=SimpleMemoryCache)
 # Custom caching implementation to track cache status
-async def fetch_and_parse_rate_data(url: str, timeout: int = 10) -> Tuple[Dict[str, Any], bool, datetime]:
+async def fetch_and_parse_rate_data(url: str, timeout: int = 10) -> Dict[str, Any]:
     """
     Asynchronously fetches exchange rate data from the specified URL and parses it,
-    with caching and cache status tracking.
+    with caching.
 
     Args:
         url: The URL to fetch the exchange rate data from
         timeout: Request timeout in seconds
 
     Returns:
-        Tuple containing:
-        - Dictionary containing the parsed exchange rate data
-        - Boolean indicating whether the result is from cache
-        - Datetime object indicating when the cache will be updated next
+        Dictionary containing the parsed exchange rate data.
 
     Raises:
         Exception: If there's an error during fetching or parsing the data
@@ -67,9 +62,8 @@ async def fetch_and_parse_rate_data(url: str, timeout: int = 10) -> Tuple[Dict[s
 
             logger.info(f"Successfully fetched and parsed exchange rate data: {exchange_data}")
 
-
-
-            return exchange_data, None, None
+            # Return only the data
+            return exchange_data
 
     except httpx.TimeoutException:
         logger.error(f"Timeout error while fetching data from {url}")
@@ -198,7 +192,7 @@ def _parse_exchange_rate_data(soup: BeautifulSoup) -> Dict[str, Any]:
         logger.error(f"Error parsing exchange rate data: {e}")
         return {}
 
-async def get_exchange_rate(from_currency: str, to_currency: str) -> Union[Tuple[Optional[float], bool, datetime], Optional[float]]:
+async def get_exchange_rate(from_currency: str, to_currency: str) -> Optional[float]:
     """
     Get the exchange rate between two currencies based on Cash Selling Rate.
 
@@ -207,10 +201,7 @@ async def get_exchange_rate(from_currency: str, to_currency: str) -> Union[Tuple
         to_currency: The target currency code (e.g., "EUR")
 
     Returns:
-        A tuple containing:
-        - The exchange rate as a float, or None if the rate couldn't be retrieved
-        - Boolean indicating whether the result is from cache
-        - Datetime object indicating when the cache will be updated next
+        The exchange rate as a float, or None if the rate couldn't be retrieved.
     """
     try:
         # Get the URL from environment variable
@@ -218,7 +209,8 @@ async def get_exchange_rate(from_currency: str, to_currency: str) -> Union[Tuple
         settings = Settings()
         url = settings.BOC_URL
 
-        data, is_cached, next_update = await fetch_and_parse_rate_data(url)
+        # Fetch data (cache status and next update are no longer returned)
+        data = await fetch_and_parse_rate_data(url)
 
         # This logic will depend on the structure of your parsed data
         if "currencies" not in data or not data["currencies"]:
@@ -254,7 +246,7 @@ async def get_exchange_rate(from_currency: str, to_currency: str) -> Union[Tuple
 
             # For CNY conversion, return the rate divided by 100
             # This is because rates are quoted as CNY per 100 foreign currency units
-            return from_rate / 100, is_cached, next_update
+            return from_rate / 100
 
         # If from_currency is CNY, we need to handle differently
         elif from_currency == "CNY":
@@ -268,7 +260,7 @@ async def get_exchange_rate(from_currency: str, to_currency: str) -> Union[Tuple
                 return None
 
             # For converting from CNY, we need reciprocal of the rate divided by 100
-            return 100 / to_rate, is_cached, next_update
+            return 100 / to_rate
 
         # Normal case - converting between two non-CNY currencies
         else:
@@ -292,13 +284,14 @@ async def get_exchange_rate(from_currency: str, to_currency: str) -> Union[Tuple
 
             # Calculate exchange rate between the two currencies
             exchange_rate = to_rate / from_rate
-            return exchange_rate, is_cached, next_update
+            return exchange_rate
 
         # Note: This code is unreachable due to the return statements above
         logger.error(f"Exchange rate not available for {from_currency} to {to_currency}")
-        return None, is_cached, next_update
+        return None
 
     except Exception as e:
         logger.error(f"Error getting exchange rate: {e}")
         logger.exception("Stack trace:")
-        return None, False, datetime.now() + timedelta(seconds=CACHE_TTL)
+        # Return None on error, as cache status/next update are no longer relevant here
+        return None

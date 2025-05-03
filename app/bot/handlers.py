@@ -68,8 +68,8 @@ async def rate_command(message: types.Message, bot=None):
         # Get the URL from environment variable
         url = settings.BOC_URL
 
-        # Fetch exchange rate data directly with cache info
-        data, is_cached, next_update = await fetch_and_parse_rate_data(url)
+        # Fetch exchange rate data directly
+        data = await fetch_and_parse_rate_data(url)
 
         if not data or "currencies" not in data or not data["currencies"]:
             await bot_to_use.send_message(
@@ -81,15 +81,9 @@ async def rate_command(message: types.Message, bot=None):
         # Get the last updated time
         last_updated = data.get("last_updated", "未知")
 
-        # Add cache status and next update time
-        cache_status = "✅ 数据来源: 缓存" if is_cached else "🔄 数据来源: 实时获取"
-        next_update_str = next_update.strftime("%Y-%m-%d %H:%M:%S")
-
         # Start response with update time header including the timestamp
         response_lines = [
-            f"汇率更新时间\n{last_updated}\n",
-            f"{cache_status}",
-            f"下次更新时间: {next_update_str}\n"
+            f"汇率更新时间\n{last_updated}\n"
         ]
 
         # Get supported currencies and their Chinese names
@@ -160,8 +154,7 @@ async def convert_command(message: types.Message, bot=None):
             )
             return
 
-        rate_info = await get_exchange_rate(from_currency, to_currency)
-        rate, is_cached, next_update = rate_info
+        rate = await get_exchange_rate(from_currency, to_currency)
 
         if rate:
             # Get the last updated time
@@ -169,12 +162,8 @@ async def convert_command(message: types.Message, bot=None):
             from app.core.config import settings
 
             # Fetch data to get the update time
-            data, _, _ = await fetch_and_parse_rate_data(settings.BOC_URL)
+            data = await fetch_and_parse_rate_data(settings.BOC_URL)
             last_updated = data.get("last_updated", "未知")
-
-            # Add cache status and next update time
-            cache_status = "✅ 数据来源: 缓存" if is_cached else "🔄 数据来源: 实时获取"
-            next_update_str = next_update.strftime("%Y-%m-%d %H:%M:%S")
 
             converted_amount = amount * rate
             await bot_to_use.send_message(
@@ -182,9 +171,7 @@ async def convert_command(message: types.Message, bot=None):
                 text=f"💱 货币转换结果:\n"
                      f"{amount:.2f} {from_currency} = {converted_amount:.2f} {to_currency}\n"
                      f"(汇率: 1 {from_currency} = {rate:.4f} {to_currency})\n\n"
-                     f"汇率更新时间\n{last_updated}\n"
-                     f"{cache_status}\n"
-                     f"下次更新时间: {next_update_str}"
+                     f"汇率更新时间\n{last_updated}"
             )
         else:
             await bot_to_use.send_message(
@@ -230,20 +217,14 @@ async def currency_command(message: types.Message, bot=None):
     from app.core.config import settings
 
     # Fetch data to get the update time
-    data, is_cached, next_update = await fetch_and_parse_rate_data(settings.BOC_URL)
+    data = await fetch_and_parse_rate_data(settings.BOC_URL)
     last_updated = data.get("last_updated", "未知")
-
-    # Add cache status and next update time
-    cache_status = "✅ 数据来源: 缓存" if is_cached else "🔄 数据来源: 实时获取"
-    next_update_str = next_update.strftime("%Y-%m-%d %H:%M:%S")
 
     await bot_to_use.send_message(
         chat_id=message.chat.id,
         text=f"💰 支持的货币列表:\n{currency_list}\n\n"
              f"使用 /rate 或 /convert 或 /cny_convert 获取汇率和转换货币。\n\n"
-             f"汇率更新时间\n{last_updated}\n"
-             f"{cache_status}\n"
-             f"下次更新时间: {next_update_str}"
+             f"汇率更新时间\n{last_updated}"
     )
 
 async def cny_convert_command(message: types.Message, bot=None):
@@ -267,8 +248,7 @@ async def cny_convert_command(message: types.Message, bot=None):
         amount = float(args[2])
         to_currency = "CNY"
 
-        rate_info = await get_exchange_rate(from_currency, to_currency)
-        rate, is_cached, next_update = rate_info
+        rate = await get_exchange_rate(from_currency, to_currency)
 
         if rate:
             # Get the last updated time
@@ -276,12 +256,8 @@ async def cny_convert_command(message: types.Message, bot=None):
             from app.core.config import settings
 
             # Fetch data to get the update time
-            data, _, _ = await fetch_and_parse_rate_data(settings.BOC_URL)
+            data = await fetch_and_parse_rate_data(settings.BOC_URL)
             last_updated = data.get("last_updated", "未知")
-
-            # Add cache status and next update time
-            cache_status = "✅ 数据来源: 缓存" if is_cached else "🔄 数据来源: 实时获取"
-            next_update_str = next_update.strftime("%Y-%m-%d %H:%M:%S")
 
             converted_amount = amount * rate
             await bot_to_use.send_message(
@@ -289,9 +265,7 @@ async def cny_convert_command(message: types.Message, bot=None):
                 text=f"💱 转换为人民币结果:\n"
                      f"{amount:.2f} {from_currency} = {converted_amount:.2f} {to_currency}\n"
                      f"(汇率: 1 {from_currency} = {rate:.4f} {to_currency})\n\n"
-                     f"汇率更新时间\n{last_updated}\n"
-                     f"{cache_status}\n"
-                     f"下次更新时间: {next_update_str}"
+                     f"汇率更新时间\n{last_updated}"
             )
         else:
             await bot_to_use.send_message(
