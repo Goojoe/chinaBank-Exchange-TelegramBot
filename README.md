@@ -17,10 +17,10 @@ https://t.me/chinaBank_Exchange_bot
 ## 本地部署
 
 ```
-python -m venv .venv
-pip install -r requirements.txt
+pip install uv
+uv pip install -r requirements.txt
+
 # Activate virtual environment
-.\.venv\Scripts\Activate.ps1
 
 # Start Uvicorn server
 uvicorn main:app --host 0.0.0.0 --port 7860 --reload

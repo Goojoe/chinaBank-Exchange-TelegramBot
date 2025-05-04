@@ -1,19 +1,18 @@
 FROM python:3.11-slim
-
 WORKDIR /app
 
-# 复制依赖文件
+# 1. 安装 uv
+RUN pip install --no-cache-dir uv
+
+# 2. 拷贝依赖清单
 COPY requirements.txt .
 
-# 安装依赖
-RUN pip install --no-cache-dir -r requirements.txt
+# 3. 用 uv 在 .venv 中批量安装
+RUN uv pip install --system --no-cache -r requirements.txt
 
-# 复制应用代码
+# 5. 拷贝源码及环境示例
 COPY . .
 COPY .env.example .env
 
-# 暴露端口（Hugging Face Spaces 使用 7860 端口）
 EXPOSE 7860
-
-# 启动应用（注意：指向 app.main:app 而不是原来的 app.master:app）
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
