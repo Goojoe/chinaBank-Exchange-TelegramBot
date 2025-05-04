@@ -20,8 +20,6 @@ https://t.me/chinaBank_Exchange_bot
 pip install uv
 uv pip install -r requirements.txt
 
-# Activate virtual environment
-
 # Start Uvicorn server
 uvicorn main:app --host 0.0.0.0 --port 7860 --reload
 
