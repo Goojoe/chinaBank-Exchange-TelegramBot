@@ -2,6 +2,8 @@
 
 这是一个提供中国银行汇率查询服务的 Telegram 机器人。用户可以通过简单的命令获取最新的汇率信息。
 
+![1000029908](https://github.com/user-attachments/assets/2ff522d4-26a6-4730-bf38-12bbb3b8717d)
+
 ## 直接使用
 
 https://t.me/chinaBank_Exchange_bot
