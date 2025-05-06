@@ -13,6 +13,7 @@ https://t.me/chinaBank_Exchange_bot
 - 支持多种货币转换
 - 实时数据更新和异步缓存
 - 用户日志隐私保护(可关闭)
+- 使用Claude Pro开发
 
 ## 本地部署
 
@@ -30,7 +31,13 @@ ngrok http 7860
 
 ## hf space 部署说明
 
-此项目已配置为在 Hugging Face Space 上运行。部署后，您需要：
+此项目已配置为在 Hugging Face Space 上运行。
+
+### 部署方法
+
+下载Dockerfile.hf并改名为Dockerfike上传即可
+
+部署后，您需要：
 
 1. 在 Space 设置中配置以下环境变量：
 
