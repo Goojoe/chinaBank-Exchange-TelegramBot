@@ -19,17 +19,53 @@ https://t.me/chinaBank_Exchange_bot
 
 ## 本地部署
 
-```
-pip install uv
-uv pip install -r requirements.txt
+1.  **安装 `uv` (如果尚未安装)**
+    ```bash
+    pip install uv
+    ```
 
-# Start Uvicorn server
-uvicorn main:app --host 0.0.0.0 --port 7860 --reload
+2.  **创建并激活虚拟环境**
+    ```bash
+    # 创建虚拟环境
+    uv venv .venv
 
-ngrok http 7860
-```
+    # 激活虚拟环境 (根据你的 Shell选择)
+    # PowerShell
+    .\.venv\Scripts\Activate.ps1
+    # Windows CMD
+    .\.venv\Scripts\activate.bat
+    # Linux/macOS
+    source ./.venv/bin/activate
+    ```
 
-记得更改`.env`的`TELEGRAM_BOT_TOKEN`和`WEBHOOK_URL`
+3.  **安装项目依赖**
+    ```bash
+    uv pip install -r requirements.txt
+    ```
+
+4.  **配置环境变量**
+    -   复制 `.env.example` 文件并重命名为 `.env`。
+    -   在 `.env` 文件中，填入你的 `TELEGRAM_BOT_TOKEN`。
+    -   `WEBHOOK_URL` 暂时可以留空。
+
+5.  **启动应用服务器**
+    ```bash
+    uvicorn main:app --host 0.0.0.0 --port 7860 --reload
+    ```
+    服务器将在 `http://localhost:7860` 上运行。
+
+6.  **设置 Webhook**
+    为了让 Telegram 能够将消息发送到你的本地服务器，你需要一个公共 URL。`ngrok` 是一个很好的工具。
+    ```bash
+    ngrok http 7860
+    ```
+    `ngrok` 会提供一个 `https://` 开头的 URL，例如 `https://xxxx-xxxx.ngrok-free.app`。
+
+7.  **更新 `.env` 文件**
+    -   将 `ngrok` 提供的 URL 填入 `.env` 文件的 `WEBHOOK_URL` 变量中。
+    -   由于应用以 `--reload` 模式运行，它会自动重启并使用新的 Webhook URL 设置自己。
+
+现在，你的机器人应该可以接收和响应消息了。
 
 ## hf space 部署说明
 
