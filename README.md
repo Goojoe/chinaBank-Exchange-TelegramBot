@@ -67,6 +67,31 @@ https://t.me/chinaBank_Exchange_bot
 
 现在，你的机器人应该可以接收和响应消息了。
 
+
+## 使用 Docker Compose 部署
+
+如果你安装了 Docker 和 Docker Compose，你可以使用 `docker-compose.yml` 文件来简化部署过程。
+
+1.  **配置环境变量**
+    -   复制 `.env.example` 文件并重命名为 `.env`。
+    -   在 `.env` 文件中，填入你的 `TELEGRAM_BOT_TOKEN`。
+    -   使用 `ngrok` 或其他服务获取一个公共的 `https` URL，并将其填入 `WEBHOOK_URL`。
+
+2.  **拉取镜像并启动容器**
+    ```bash
+    docker-compose up -d
+    ```
+    此命令会自动从 `ghcr.io/goojoe/cet_bot:latest` 拉取最新的镜像，并在后台启动容器。
+
+3.  **查看日志**
+    ```bash
+    docker-compose logs -f
+    ```
+
+4.  **停止容器**
+    ```bash
+    docker-compose down
+    ```
 ## hf space 部署说明
 
 此项目已配置为在 Hugging Face Space 上运行。

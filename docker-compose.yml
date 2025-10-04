@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  app:
+    image: ghcr.io/goojoe/cet_bot:latest
+    env_file:
+      - .env
+    ports:
+      - "7860:7860"
+    restart: unless-stopped
